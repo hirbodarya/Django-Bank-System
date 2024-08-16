@@ -1,0 +1,75 @@
+_____________CREATE 20,000 RANDOM ACCOUNT RECORDS_____________
+
+from TheBank.bulk import create_random_accounts
+create_random_accounts(20000)
+______________________________________________________
+//////////////////////////////////////////////////////
+
+
+______________BALANCES WITH OWNER'S NAME______________
+
+accounts = Account.objects.select_related('owner').all()
+accounts = [{'owner': f"{account.owner.first_name} {account.owner.last_name}", 'balance': account.balance} for account in accounts]
+accounts[
+{'owner': 'Elon Musk', 'balance': 696448008}, {'owner': 'Bob Rogers', 'balance': 134033384}, {'owner': 'Elon Musk', 'balance': 963264519}, {'owner': 'Elon Musk', 'balance': 511745804}, {'owner': 'Elon Musk', 'balance': 517193499}, '...(remaining elements truncated)...']>
+______________________________________________________
+//////////////////////////////////////////////////////
+
+
+________________HIGHEST BALANCE RECORD________________
+
+highest_balance_account = Account.objects.order_by('-balance').values().first()
+highest_balance_account
+{'id': 30227, 'account_number': '0000000000010223', 'balance': 999916941, 'owner_id': 1}
+______________________________________________________
+//////////////////////////////////////////////////////
+
+
+___________________5 LOWEST RECORDS___________________
+
+lowest_balance_accounts = Account.objects.order_by('balance').values()[:5]
+lowest_balance_accounts
+<QuerySet [{'id': 37781, 'account_number': '0000000000017777', 'balance': 64298, 'owner_id': 2}, {'id': 33631, 'account_number': '0000000000013627', 'balance': 269236, 'owner_id': 1}, {'id': 25766, 'account_number': '0000000000005762', 'balance': 274120, 'owner_id': 2}, {'id': 34560, 'account_number': '0000000000014556', 'balance': 289053, 'owner_id': 2}, {'id': 35480, 'account_number': '0000000000015476', 'balance': 289580, 'owner_id': 1}]>
+______________________________________________________
+//////////////////////////////////////////////////////
+
+
+_______________TRANSFER MONEY FUNCTION_______________
+
+from transaction.models import transfer_money
+
+transfer_money(20007, 20008 , 1000, "order 66")
+transfer_money(40003, 30008, 444660000)
+______________________________________________________
+//////////////////////////////////////////////////////
+
+
+_________ACCOUNTS WITH ACCOUNT ID GT BALANCE__________
+
+id_gt_balance_accounts = Account.objects.filter(account_number__gt=F('balance')).values()
+id_gt_balance_accounts
+<QuerySet [{'id': 40003, 'account_number': '0000000000019999', 'balance': 8570, 'owner_id': 2}]>
+______________________________________________________
+//////////////////////////////////////////////////////
+
+
+________CREATE 10,000,000 RANDOM ACCOUNT RECORDS AND FILTER THE BALANCE________
+
+create_random_accounts(10000000)
+balance_filter = Account.objects.filter(balance__gt=10000000) | Account.objects.filter(balance__lt=2000000).values()
+balance_filter
+<QuerySet [<Account: Account object (40004)>, <Account: Account object (40005)>, <Account: Account object (40006)>, <Account: Account object (40007)>, <Account: Account object (40008)>, <Account: Account object (40009)>, <Account: Account object (40010)>, <Account: Account object (40011)>, <Account: Account object (40012)>, '...(remaining elements truncated)...']>
+______________________________________________________
+//////////////////////////////////////////////////////
+
+
+_______________TOTAL ACCOUNTS BALANCE_________________
+
+from django.db.models import Sum
+
+total_balance = Account.objects.values('owner').annotate(total_balance=Sum('balance'))
+total_balance
+<QuerySet [{'owner': 1, 'total_balance': 2503019492517246}, {'owner': 2, 'total_balance': 2497588821906924}]>
+______________________________________________________
+//////////////////////////////////////////////////////
+
